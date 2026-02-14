@@ -31,14 +31,41 @@ class LeafNode(HTMLNode):
         if self.tag == None:
             return self.value
         else:
-            return f"<{self.tag}>{self.value}<{self.tag}>"
-        raise NotImplementedError()
+            return f"<{self.tag}>{self.value}</{self.tag}>"
+
+
+class ParentNode(HTMLNode):
+    def __init__(self, tag:str, children:list["HTMLNode"], props:dict[str,str]=None):
+        super().__init__(tag, None, children, props)
+
+    def to_html(self):
+        if self.tag == None:
+            raise ValueError("tag is None")
+        if self.children == None:
+            raise ValueError("children == None")
+        children_html = ""
+        for child in self.children:
+            children_html += child.to_html()
+        return f"<{self.tag}>{children_html}</{self.tag}>"
         
         
 
 
+node = ParentNode(
+    "p",
+    [
+        LeafNode("b", "Bold text"),
+        LeafNode(None, "Normal text"),
+        LeafNode("i", "italic text"),
+        LeafNode(None, "Normal text"),
+    ],
+)
+
+print(node.to_html())
 
 
+
+'''
 test_props = {
     "href": "https://www.google.com",
     "target": "_blank",
@@ -57,3 +84,4 @@ test_props = {
 
 my_html_leaf_node = LeafNode(tag="p",value="this is the value", props=test_props)
 print(my_html_leaf_node.to_html())
+'''
