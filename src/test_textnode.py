@@ -2,6 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode,LeafNode,ParentNode,text_node_to_html_node
+from markdown_to_text_node import split_nodes_delimiter
 
 
 
@@ -56,6 +57,44 @@ class TestTextNode(unittest.TestCase):
         print(html_node)
         self.assertEqual(html_node.tag, None)
         self.assertEqual(html_node.value, "This is a text node")
+
+
+
+    #markdown_to_text_node tests:
+
+    def test_markdown_to_text_node(self):
+        node = TextNode("This is text with a `code block` word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, 
+    [
+        TextNode("This is text with a ", TextType.TEXT),
+        TextNode("code block", TextType.CODE),
+        TextNode(" word", TextType.TEXT),
+    ])
+        
+    def test_markdown_to_text_node_no_delimiter(self):
+        node = TextNode("There is no delimiter here", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes[0], node)
+    
+    def test_markdown_to_text_node_Bold(self):
+        node = TextNode("**Bold text** is important", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, 
+    [
+        TextNode("Bold text", TextType.BOLD),
+        TextNode(" is important", TextType.TEXT),
+    ])
+    
+    def test_markdown_to_text_node_italic(self):
+        node = TextNode("Italicized text is the *cat's meow*.", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "*", TextType.ITALIC)
+        self.assertEqual(new_nodes, 
+    [
+        TextNode("Italicized text is the ", TextType.TEXT),
+        TextNode("cat's meow", TextType.ITALIC),
+        TextNode(".", TextType.TEXT)
+    ])
 
 
 if __name__ == "__main__":
