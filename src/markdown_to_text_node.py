@@ -23,11 +23,12 @@ def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:Tex
                 case _:
                     raise Exception("invalid Markdown syntax")
                 
-        for node in new_nodes:
-            if node.text == "":
-                new_nodes.remove(node)
+    for node in new_nodes:
+        if node.text == "":
+            print("empty text node removed")
+            new_nodes.remove(node)
         #print(f"new_nodes:{new_nodes}")
-        return new_nodes
+    return new_nodes
 
 
 def split_nodes_link(old_nodes:list[TextNode]):
@@ -61,7 +62,9 @@ def split_nodes_link(old_nodes:list[TextNode]):
                         min_index = node.text.index(n.text)
                         cur_node = n
                 combined_nodes.remove(cur_node)
-                result_nodes.append(cur_node)         
+                result_nodes.append(cur_node)
+        else:
+            result_nodes.append(node)     
     return result_nodes
 
 def split_nodes_image(old_nodes:list[TextNode]):
@@ -95,7 +98,9 @@ def split_nodes_image(old_nodes:list[TextNode]):
                         min_index = node.text.index(n.text)
                         cur_node = n
                 combined_nodes.remove(cur_node)
-                result_nodes.append(cur_node)         
+                result_nodes.append(cur_node)
+        else:
+            result_nodes.append(node)
     return result_nodes
 
 
@@ -115,18 +120,18 @@ def extract_markdown_links(text):
 
 
 
+# main conversion function that uses the other functions
+def text_to_textnodes(text):
+    cur_nodes = [TextNode(text, TextType.TEXT)]
+    
+    cur_nodes = split_nodes_delimiter(cur_nodes,"**",TextType.BOLD)
+    #print(f"after bold check:len:{len(cur_nodes)},{cur_nodes}")
+    cur_nodes = split_nodes_delimiter(cur_nodes,"_",TextType.ITALIC)
+    #print(f"after italic check:len:{len(cur_nodes)},{cur_nodes}")
+    cur_nodes = split_nodes_delimiter(cur_nodes,"`",TextType.CODE)
+    cur_nodes = split_nodes_image(cur_nodes)
+    cur_nodes = split_nodes_link(cur_nodes)
+    return cur_nodes
 
-test_node = TextNode(
-    "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
-    TextType.TEXT,
-)
-
-split_nodes_link([test_node])
-#print(extract_markdown_links(test_node.text))
-
-
-
-#test_text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg |||||This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
-#print(f"Text:{test_text}")
-#print(extract_markdown_images(test_text))
-#print(extract_markdown_links(test_text))
+test_text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+text_to_textnodes(test_text)

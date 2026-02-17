@@ -2,7 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode,LeafNode,ParentNode,text_node_to_html_node
-from markdown_to_text_node import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link,split_nodes_image
+from markdown_to_text_node import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link,split_nodes_image, text_to_textnodes
 
 
 
@@ -163,6 +163,31 @@ class TestTextNode(unittest.TestCase):
         )
 
 
+    def test_text_to_textnodes(self):
+        t1 = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        self.assertEqual(text_to_textnodes(t1),
+        [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ])
 
+        #TO DO: multiple of the same delimiter is not implemented yet.
+        '''t2 = "**this** is an example of multiple **bold** words. Also a [wiki](https://en.wikipedia.org/wiki/Art)"
+        self.assertEqual(text_to_textnodes(t2),[
+            TextNode("this", TextType.BOLD),
+            TextNode(" is an example of multiple ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" words. Also a ", TextType.TEXT),
+            TextNode("wiki", TextType.LINK,"https://en.wikipedia.org/wiki/Art"),
+        ])'''
+        
 if __name__ == "__main__":
     unittest.main()
