@@ -180,14 +180,14 @@ class TestTextNode(unittest.TestCase):
         ])
 
         #TO DO: multiple of the same delimiter is not implemented yet.
-        '''t2 = "**this** is an example of multiple **bold** words. Also a [wiki](https://en.wikipedia.org/wiki/Art)"
+        t2 = "**this** is an example of multiple **bold** words. Also a [wiki](https://en.wikipedia.org/wiki/Art)"
         self.assertEqual(text_to_textnodes(t2),[
             TextNode("this", TextType.BOLD),
             TextNode(" is an example of multiple ", TextType.TEXT),
             TextNode("bold", TextType.BOLD),
             TextNode(" words. Also a ", TextType.TEXT),
             TextNode("wiki", TextType.LINK,"https://en.wikipedia.org/wiki/Art"),
-        ])'''
+        ])
         
 if __name__ == "__main__":
     unittest.main()

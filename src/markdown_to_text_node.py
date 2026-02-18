@@ -1,14 +1,16 @@
 from textnode import TextNode, TextType
 import re
 
-def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:TextType):
+'''def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:TextType):
     new_nodes:list[TextNode] = []
     for old_node in old_nodes:
         if old_node.text_type != TextType.TEXT:
             new_nodes.append(old_node)
         else:
             cur_text = old_node.text
-            split_text = cur_text.split(delimiter)
+            split_text = cur_text.split(delimiter,2)
+            if delimiter in split_text:
+                print(f"delimiter is still in ")
             #print(f"len(split_text):{len(split_text)}, split_text:{split_text}")
             match len(split_text):
                 case 3:# delimiter found
@@ -29,7 +31,39 @@ def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:Tex
             new_nodes.remove(node)
         #print(f"new_nodes:{new_nodes}")
     return new_nodes
+'''
 
+def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type_input:TextType):
+    result:list[TextNode] = []
+    for cur_node in old_nodes:
+        #print(f"curnode:__{cur_node}")
+        #print(f"cur_type:__{cur_node.text_type}")
+        if cur_node.text_type == TextType.TEXT:
+            split_text = cur_node.text.split(delimiter,2)
+            match len(split_text):
+                case 3:# delimiter found
+                    n1 = TextNode(split_text[0],TextType.TEXT)
+                    n2 = TextNode(split_text[1],text_type_input)
+                    n3 = TextNode(split_text[2],TextType.TEXT)
+                    result.append(n1)
+                    result.append(n2)
+                    if delimiter in split_text[2]:
+                        result.extend(split_nodes_delimiter([n3], delimiter, text_type_input))
+                    else:
+                        result.append(n3)
+                case 2:# only 1 delimiter found
+                    raise Exception("invalid Markdown syntax: only 1 delimiter found")
+                case 1:# no delimiter, no changes
+                    result.append(cur_node)
+                case _:
+                    raise Exception("invalid Markdown syntax")
+        else:
+            result.append(cur_node)
+
+    for n in result:
+        if n.text_type == TextType.TEXT and n.text == "":
+            result.remove(n)
+    return result
 
 def split_nodes_link(old_nodes:list[TextNode]):
     result_nodes = []
@@ -135,3 +169,11 @@ def text_to_textnodes(text):
 
 test_text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
 text_to_textnodes(test_text)
+
+
+
+
+
+t2 = "**this** is an example of multiple **bold** words. Also a [wiki](https://en.wikipedia.org/wiki/Art)"
+input_node = TextNode(t2, TextType.TEXT)
+#print(f"result={split_nodes_delimiter([input_node], "**", TextType.BOLD)}")
