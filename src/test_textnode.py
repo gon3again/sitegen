@@ -3,7 +3,7 @@ import unittest
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode,LeafNode,ParentNode,text_node_to_html_node
 from markdown_to_text_node import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_link,split_nodes_image, text_to_textnodes
-
+from markdown_to_block import BlockType,markdown_to_blocks,block_to_block_type
 
 
 class TestTextNode(unittest.TestCase):
@@ -189,5 +189,62 @@ class TestTextNode(unittest.TestCase):
             TextNode("wiki", TextType.LINK,"https://en.wikipedia.org/wiki/Art"),
         ])
         
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+    
+
+
+    def test_block_to_block_type(self):
+        b1 ="""1. i am
+2. number
+3. one
+4. Test"""
+        self.assertEqual(block_to_block_type(b1),BlockType.ORDERED_LIST)
+
+        b2 ="""- pizza
+- eggs
+- paprika
+- onions"""
+        self.assertEqual(block_to_block_type(b2),BlockType.UNORDERED_LIST)
+
+        b3 ="""> pizza
+> eggs
+> paprika
+> onions"""
+        self.assertEqual(block_to_block_type(b3),BlockType.QUOTE)
+
+        b4 ="""- pizza
+- eggs
+- paprika
+> onions"""
+        self.assertEqual(block_to_block_type(b4),BlockType.PARAGRAPH)
+
+        b5 ="""```
+        x >= y```"""
+        self.assertEqual(block_to_block_type(b5),BlockType.CODE)
+
+        b6 ="""####### New Title"""
+        self.assertNotEqual(block_to_block_type(b6),BlockType.HEADING)
+
+
+    
 if __name__ == "__main__":
     unittest.main()
