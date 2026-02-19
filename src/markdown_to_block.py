@@ -34,9 +34,7 @@ def block_to_block_type(block:str):
                 return BlockType.QUOTE
         else:
             break
-            
-
-    
+    ### heading
     if re.match(r"^#{1,6}( )", block):
         return BlockType.HEADING
     #``` code ```
@@ -44,12 +42,6 @@ def block_to_block_type(block:str):
         return BlockType.CODE
    
     return BlockType.PARAGRAPH
-
-
-
-
-
-
 
 
 
