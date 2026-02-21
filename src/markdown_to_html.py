@@ -14,23 +14,30 @@ def markdown_to_html(markdown:str):
         #print(cur_block_tag)
         cur_html_node = LeafNode(cur_block_tag,block)
         html_nodes.append(cur_html_node)
-    print(html_nodes)
+    #print(html_nodes)
     for html_node in html_nodes:
         html_node.value = mod_inner_text(html_node)
-    result_text =""
-    for html_node in html_nodes:
-        result_text += f"<{html_node.tag}>"+html_node.value+f"<{html_node.tag}/>"
-    print(html_nodes)
-    print(result_text)
 
+    result_text:str =""
+    for html_node in html_nodes:
+        cur_val:str = html_node.value
+        if html_node.tag!= "code":
+            cur_val = cur_val.replace("\n"," ")
+    
+        result_text += f"<{html_node.tag}>"+cur_val+f"</{html_node.tag}>"
+        if html_node.tag == "code":
+            result_text = "<pre>" + result_text + "</pre>"
+
+    result_text = f"<div>" + result_text + f"</div>"
     return result_text
         
 
 
 def mod_inner_text(html_node:HTMLNode):
-    
+    if html_node.tag == "code":
+        html_node.value = html_node.value.replace("```","")
+        return html_node.value
     text = html_node.value
-
 
     text_nodes = text_to_textnodes(text)
     new_html_nodes = list(map(text_node_to_html_node,text_nodes))
@@ -41,7 +48,7 @@ def mod_inner_text(html_node:HTMLNode):
     return result_text
 
 
-
+#new notes
 
 
 
@@ -121,5 +128,15 @@ a = "Hello, World!"
 print(a.lower())
 ```"""
 
+
+
+md_code = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+
 #markdown_to_html_node(test_markdown)
-markdown_to_html_node(md_test1)
+print(markdown_to_html(md_code))
