@@ -11,10 +11,11 @@ def markdown_to_html(markdown:str):
     for block in blocks:
         cur_block_type:BlockType = block_to_block_type(block)
         cur_block_tag = block_type_to_tag(cur_block_type,block)
-        #print(cur_block_tag)
+        # new mod_markdown_block
+        block = mod_markdown_block(block, cur_block_type, cur_block_tag)
+        # to do:(leafnode) children of html nodes are not set currently
         cur_html_node = LeafNode(cur_block_tag,block)
         html_nodes.append(cur_html_node)
-    #print(html_nodes)
     for html_node in html_nodes:
         html_node.value = mod_inner_text(html_node)
 
@@ -32,10 +33,11 @@ def markdown_to_html(markdown:str):
     return result_text
         
 
+    
 
 def mod_inner_text(html_node:HTMLNode):
     if html_node.tag == "code":
-        html_node.value = html_node.value.replace("```","")
+        #print(f"html_node.value________:{html_node.value}")
         return html_node.value
     text = html_node.value
 
@@ -43,12 +45,40 @@ def mod_inner_text(html_node:HTMLNode):
     new_html_nodes = list(map(text_node_to_html_node,text_nodes))
     result_text = ""
     for new_html_node in new_html_nodes:
-        result_text += new_html_node.to_html()
-        
+        result_text += new_html_node.to_html()  
     return result_text
 
+# adds tags for blocks and list elements while removing markdown identifiers.
+def mod_markdown_block(block:str,block_type:BlockType,tag:str):
+    #print(f"block:{block},tag:{tag}")
+    lines = block.split("\n")
+    match block_type:
+        case BlockType.PARAGRAPH:
+            return block
+        case BlockType.HEADING:
+            index = int(tag[1])
+            block = block[index+1:]
+        case BlockType.CODE:
+            block = block.replace("```","")
+            if block.startswith("\n"): 
+                block = block[1:]
+        case BlockType.QUOTE:
+            for i in range(len(lines)):
+                if lines[i].startswith("> "):
+                    lines[i] = lines[i][2:]
+                else:
+                    lines[i] = lines[i][1:]
+            block = "\n".join(lines)
+        case BlockType.UNORDERED_LIST:
+            for i in range(len(lines)):
+                lines[i] = "<li>"+lines[i][2:]+"</li>"
+            block = "".join(lines)
 
-#new notes
+        case BlockType.ORDERED_LIST:
+            for i in range(len(lines)):
+                lines[i] = "<li>"+lines[i][3:]+"</li>"
+            block = "".join(lines)
+    return block
 
 
 
