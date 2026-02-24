@@ -113,18 +113,6 @@ def block_type_to_tag(block_type:BlockType, block):
 
 
 
-'''print(text_to_textnodes("""1. hello,
-2. who
-3. is
-4. waldo?"""))'''
-
-
-
-
-
-
-
-
 
 
 
@@ -169,4 +157,4 @@ the **same** even with inline stuff
 
 
 #markdown_to_html_node(test_markdown)
-print(markdown_to_html(md_code))
+#print(markdown_to_html(md_code))
