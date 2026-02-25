@@ -4,46 +4,54 @@ from textnode import TextNode,TextType
 from htmlnode import HTMLNode,LeafNode,ParentNode,text_node_to_html_node
 
 
-
-
 def markdown_to_html(markdown:str):
     blocks:list[str] = markdown_to_blocks(markdown)
     block_types:list[BlockType] = []
-    block_html_nodes:list[HTMLNode] = []
-
+    html_nodes:list[HTMLNode] = []
     for block in blocks:
         cur_block_type:BlockType = block_to_block_type(block)
         cur_block_tag = block_type_to_tag(cur_block_type,block)
-        block = fix_block_format(block,cur_block_type,cur_block_tag)
+        # new mod_markdown_block
+        block = mod_markdown_block(block, cur_block_type, cur_block_tag)
+        # to do:(leafnode) children of html nodes are not set currently
+        cur_html_node = LeafNode(cur_block_tag,block)
+        html_nodes.append(cur_html_node)
+    for html_node in html_nodes:
+        html_node.value = mod_inner_text(html_node)
+
+    result_text:str =""
+    for html_node in html_nodes:
+        cur_val:str = html_node.value
+        if html_node.tag!= "code":
+            cur_val = cur_val.replace("\n"," ")
+    
+        result_text += f"<{html_node.tag}>"+cur_val+f"</{html_node.tag}>"
+        if html_node.tag == "code":
+            result_text = "<pre>" + result_text + "</pre>"
+
+    result_text = f"<div>" + result_text + f"</div>"
+    return result_text
         
-        block_html_node = ParentNode(cur_block_tag,text_to_children(block, cur_block_tag))
-        if cur_block_tag == "code":
-            pre_node = ParentNode("pre",[block_html_node])
-            block_html_nodes.append(pre_node)
-        else:
-            block_html_nodes.append(block_html_node)
-    root_div_html_node = ParentNode("div", block_html_nodes)
-    return root_div_html_node.to_html()
 
+    
 
+def mod_inner_text(html_node:HTMLNode):
+    if html_node.tag == "code":
+        #print(f"html_node.value________:{html_node.value}")
+        return html_node.value
+    text = html_node.value
 
+    text_nodes = text_to_textnodes(text)
+    new_html_nodes = list(map(text_node_to_html_node,text_nodes))
+    result_text = ""
+    for new_html_node in new_html_nodes:
+        result_text += new_html_node.to_html()  
+    return result_text
 
-
-
-
-def text_to_children(text:str, cur_block_tag:str):
-    text_nodes = ""
-    if cur_block_tag == "code":
-        text_nodes = [TextNode(text,TextType.TEXT)]
-    else:
-        text_nodes = text_to_textnodes(text)
-    html_nodes = list(map(text_node_to_html_node,text_nodes))
-    return html_nodes
-  
-def fix_block_format(block:str,block_type:BlockType,tag:str):
+# adds tags for blocks and list elements while removing markdown identifiers.
+def mod_markdown_block(block:str,block_type:BlockType,tag:str):
+    #print(f"block:{block},tag:{tag}")
     lines = block.split("\n")
-    if tag!= "code":
-        block = block.replace("\n"," ")
     match block_type:
         case BlockType.PARAGRAPH:
             return block
@@ -73,6 +81,7 @@ def fix_block_format(block:str,block_type:BlockType,tag:str):
     return block
 
 
+
 def block_type_to_tag(block_type:BlockType, block):
 
     match block_type:
@@ -93,11 +102,59 @@ def block_type_to_tag(block_type:BlockType, block):
 
 
 
-md="""> The first rule about fight club is you don’t talk about fight club.
->The second rule about fight club is you don’t talk about fight club.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+md_test1 = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
 """
-    
-#result ="<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>"
+
+##test
+test_markdown = """## Waldo
+
+1. hello,
+2. who
+3. is
+4. waldo?
+
+a normal paragraph
+
+> quote text is here
+
+- Coffee
+- Milk
+- Tea
+
+```
+a = "Hello, World!"
+print(a.lower())
+```"""
 
 
-#print(markdown_to_html_u(md))
+
+md_code = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+
+#markdown_to_html_node(test_markdown)
+#print(markdown_to_html(md_code))
