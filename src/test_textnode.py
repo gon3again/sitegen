@@ -311,5 +311,12 @@ the **same** even with inline stuff
         self.assertEqual(html,"<div><ol><li>First item</li><li>Second item</li><li>Third item</li><li>Fourth item</li></ol></div>")
 
 
+    def test_header_img(self):
+        md="""# Tolkien Fan Club
+
+![JRR Tolkien sitting](/images/tolkien.png)"""
+        html = markdown_to_html(md)
+        self.assertEqual(html,"""<div><h1>Tolkien Fan Club</h1><img src=/images/tolkien.png alt=JRR Tolkien sitting></div>""")
+
 if __name__ == "__main__":
     unittest.main()

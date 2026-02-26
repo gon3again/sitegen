@@ -23,6 +23,7 @@ def markdown_to_html(markdown:str):
         else:
             block_html_nodes.append(block_html_node)
     root_div_html_node = ParentNode("div", block_html_nodes)
+    #print(root_div_html_node)
     return root_div_html_node.to_html()
 
 

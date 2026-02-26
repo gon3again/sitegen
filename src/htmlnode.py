@@ -50,10 +50,16 @@ class LeafNode(HTMLNode):
 
     def to_html(self):
         if self.value == "":
-            raise ValueError()
+            if self.tag == "img":
+                #return f"<img src={self.props["src"]} alt={self.props["alt"]}"
+                return f"<img{self.props_to_html()}>"
+                print(self.tag,self.props)
+            else:
+                raise ValueError()
         if self.tag == None:
             return self.value
         else:
+            
             return f"<{self.tag}>{self.value}</{self.tag}>"
 
 
