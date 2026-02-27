@@ -78,11 +78,9 @@ def generate_page(from_path, template_path, dest_path):
     
     dest_file = open(dest_path,"w")
     dest_file.write(mod_template)
+    dest_file.close()
 
 
-    #index = open(dest_path).write
-    #print("template:",template)
-    
 
     
 

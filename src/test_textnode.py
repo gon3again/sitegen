@@ -316,7 +316,25 @@ the **same** even with inline stuff
 
 ![JRR Tolkien sitting](/images/tolkien.png)"""
         html = markdown_to_html(md)
-        self.assertEqual(html,"""<div><h1>Tolkien Fan Club</h1><img src=/images/tolkien.png alt=JRR Tolkien sitting></div>""")
+        self.assertEqual(html,"""<div><h1>Tolkien Fan Club</h1><p><img src="/images/tolkien.png" alt="JRR Tolkien sitting"></p></div>""")#img tags are inside an extra p tag(maybe unnecessary)
 
+
+    def test_link(self):
+        md ="""[Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)"""
+        html = markdown_to_html(md)
+        self.assertEqual(html,"""<div><p><a href="/blog/glorfindel">Why Glorfindel is More Impressive than Legolas</a></p></div>""")
+
+
+    def test_unordered_list_links(self):
+        md = """## Blog posts
+
+- [Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+- [Why Tom Bombadil Was a Mistake](/blog/tom)
+- [The Unparalleled Majesty of "The Lord of the Rings"](/blog/majesty)"""
+        html = markdown_to_html(md)
+        self.assertEqual(html,"""<div><h2>Blog posts</h2><ul><li><a href="/blog/glorfindel">Why Glorfindel is More Impressive than Legolas</a></li><li><a href="/blog/tom">Why Tom Bombadil Was a Mistake</a></li><li><a href="/blog/majesty">The Unparalleled Majesty of "The Lord of the Rings"</a></li></ul></div>""")
+
+
+    
 if __name__ == "__main__":
     unittest.main()

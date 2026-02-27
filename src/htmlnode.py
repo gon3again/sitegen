@@ -11,9 +11,9 @@ def text_node_to_html_node(text_node:TextNode):
             case TextType.ITALIC:
                 return LeafNode("i",text_node.text)
             case TextType.CODE:
-                return LeafNode("code",text_node.text,{"href":text_node.url})
+                return LeafNode("code",text_node.text)
             case TextType.LINK:
-                return LeafNode("a",text_node.text)
+                return LeafNode("a",text_node.text,{"href":text_node.url})
             case TextType.IMAGE:
                 return LeafNode("img","",{"src":text_node.url, "alt":text_node.text})
 
@@ -33,7 +33,7 @@ class HTMLNode:
         result = ""
         for prop in self.props:
             self.props[prop]
-            result += " "+prop+"="+ self.props[prop]
+            result += " "+prop+"="+'"'+ self.props[prop]+'"'
         return result
     
 
@@ -59,8 +59,7 @@ class LeafNode(HTMLNode):
         if self.tag == None:
             return self.value
         else:
-            
-            return f"<{self.tag}>{self.value}</{self.tag}>"
+            return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
 
 
 class ParentNode(HTMLNode):
