@@ -39,6 +39,9 @@ def text_to_children(text:str, cur_block_tag:str):
     else:
         text_nodes = text_to_textnodes(text)
     html_nodes = list(map(text_node_to_html_node,text_nodes))
+    if cur_block_tag =="ul":
+        print("text_nodes:",text_nodes)
+        #print("html_nodes",html_nodes)
     return html_nodes
   
 def fix_block_format(block:str,block_type:BlockType,tag:str):
@@ -65,6 +68,7 @@ def fix_block_format(block:str,block_type:BlockType,tag:str):
         case BlockType.UNORDERED_LIST:
             for i in range(len(lines)):
                 lines[i] = "<li>"+lines[i][2:]+"</li>"
+                #print("lines[i]:",lines[i])
             block = "".join(lines)
 
         case BlockType.ORDERED_LIST:
@@ -94,11 +98,11 @@ def block_type_to_tag(block_type:BlockType, block):
 
 
 
-md="""> The first rule about fight club is you don’t talk about fight club.
->The second rule about fight club is you don’t talk about fight club.
-"""
+md = """- [Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+- [Why Tom Bombadil Was a Mistake](/blog/tom)
+- [The Unparalleled Majesty of "The Lord of the Rings"](/blog/majesty)"""
     
 #result ="<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>"
 
 
-#print(markdown_to_html_u(md))
+#print(markdown_to_html(md))

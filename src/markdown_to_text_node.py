@@ -34,41 +34,43 @@ def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type_inp
             result.remove(n)
     return result
 
+
+
+
 def split_nodes_link(old_nodes:list[TextNode]):
     result_nodes = []
     for node in old_nodes:
         if node.text_type == TextType.TEXT:
             links = extract_markdown_links(node.text)
-            split_text = node.text
-            new_link_nodes = []
-
-            for i in range(len(links)):
-                new_link_nodes.append(TextNode(links[i][0], TextType.LINK, links[i][1]))
-                split_text = split_text.replace("["+links[i][0]+"]"+"("+links[i][1]+")","[link]")
-
-            split_text = split_text.split("[link]")
-            new_text_nodes = []
-            for t in split_text:
-                
-                if t != "":
-                    new_text_nodes.append(TextNode(t, TextType.TEXT))
-
-            combined_nodes = []
-            combined_nodes.extend(new_text_nodes)
-            combined_nodes.extend(new_link_nodes)
+            split_text:str = node.text
             
-            while len(combined_nodes) > 0:
-                min_index = float("inf")
-                cur_node = None
-                for n in combined_nodes:
-                    if node.text.index(n.text) < min_index:
-                        min_index = node.text.index(n.text)
-                        cur_node = n
-                combined_nodes.remove(cur_node)
-                result_nodes.append(cur_node)
-        else:
-            result_nodes.append(node)     
+            while len(links) > 0:
+                cur_link_index = split_text.index(links[0][0])
+                if cur_link_index != 1:# link not at start make new text_node
+                    text_node = TextNode(split_text[0:cur_link_index-1],TextType.TEXT)
+                    result_nodes.append(text_node)
+                    split_text = split_text[cur_link_index-1:]
+                else:# link at start
+                    link_node = TextNode(links[0][0],TextType.LINK,links[0][1])
+                    result_nodes.append(link_node)
+                    split_text = split_text.replace("["+links[0][0]+"]","").replace("("+links[0][1]+")","")
+                    links.pop(0)
+
+            if len(split_text) > 0: #if there is text left after the links have been handled-> add the rest of the text
+                text_node = TextNode(split_text,TextType.TEXT)
+                result_nodes.append(text_node)
+        else:# node is not Texttype.TEXT (dont change it)
+            result_nodes.append(node)
     return result_nodes
+
+
+
+
+
+
+
+
+
 
 def split_nodes_image(old_nodes:list[TextNode]):
     result_nodes = []
@@ -137,7 +139,7 @@ def text_to_textnodes(text):
     return cur_nodes
 
 test_text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
-text_to_textnodes(test_text)
+#text_to_textnodes(test_text)
 
 
 
