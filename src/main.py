@@ -125,7 +125,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         if not dest_path.parent.exists():
             dest_path.parent.mkdir(parents=True)
         print(path_tuple[0],template_path,path_tuple[1])
-        #generate_page(path_tuple[0],template_path,path_tuple[1])
+        generate_page(path_tuple[0],template_path,path_tuple[1])
 
     print(dest_path)
 
