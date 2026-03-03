@@ -39,9 +39,7 @@ def text_to_children(text:str, cur_block_tag:str):
     else:
         text_nodes = text_to_textnodes(text)
     html_nodes = list(map(text_node_to_html_node,text_nodes))
-    if cur_block_tag =="ul":
-        print("text_nodes:",text_nodes)
-        #print("html_nodes",html_nodes)
+    
     return html_nodes
   
 def fix_block_format(block:str,block_type:BlockType,tag:str):

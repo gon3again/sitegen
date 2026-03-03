@@ -3,7 +3,7 @@ from htmlnode import HTMLNode, LeafNode, ParentNode,text_node_to_html_node
 from markdown_to_html import markdown_to_html
 import os
 import shutil
-
+from pathlib import Path
 
 '''
 def text_node_to_html_node(text_node:TextNode):
@@ -64,7 +64,7 @@ def extract_title(markdown:str):
 
 
 def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    #print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     md = open(from_path).read()
     title = extract_title(md)
@@ -73,16 +73,73 @@ def generate_page(from_path, template_path, dest_path):
     template = open(template_path).read()
     mod_template= template.replace("{{ Title }}",title).replace("{{ Content }}", html)
 
-    print("dest_path",dest_path)
-
-    
     dest_file = open(dest_path,"w")
     dest_file.write(mod_template)
     dest_file.close()
 
 
 
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    dir_path_content = os.path.join(".",dir_path_content)
+    template_path = os.path.join(".",template_path)
+    dest_dir_path = os.path.join(".",dest_dir_path)
+    #print(dir_path_content,template_path,dest_dir_path)
+
+    if not os.path.isfile(template_path):
+        raise Exception("template is not a file")
     
+    if os.path.isfile(dir_path_content) or os.path.isfile(dest_dir_path):
+        raise Exception("dir path or dest path is a file instead of dir")
+    else:
+        content:list[str] = os.listdir(dir_path_content)
+        destination :list[str] = os.listdir(dest_dir_path)
+
+    md_paths:list[str] = []
+    dir_to_explore:list[str] = [dir_path_content]
+   
+
+    while len(dir_to_explore) > 0:
+        cur_dir = dir_to_explore.pop(0)
+        dir_files:list[str] = os.listdir(cur_dir)
+        #print(cur_dir+":",dir_files)
+        for file in dir_files:
+            cur_path = cur_dir+"/"+file
+            if os.path.isfile(cur_path):
+                if cur_path.endswith(".md"):
+                    md_paths.append(cur_path)
+            else:
+                dir_to_explore.append(cur_path)
+
+    def content_to_html_path(s:str):
+        s = s.replace(dir_path_content,dest_dir_path).replace(".md",".html")
+        return s
+    
+    html_paths:list[str] = list(map(content_to_html_path,md_paths))
+
+    path_list = list(zip(md_paths,html_paths))
+    print("path_lists:",path_list)
+
+    for path_tuple in path_list:
+        dest_path = Path(path_tuple[1])
+        if not dest_path.parent.exists():
+            dest_path.parent.mkdir(parents=True)
+        print(path_tuple[0],template_path,path_tuple[1])
+        #generate_page(path_tuple[0],template_path,path_tuple[1])
+
+    print(dest_path)
+
+            
+
+    
+    #print(content,template_path,destination)
+    
+    pass
+
+
+
+
+
 
 
     
@@ -93,9 +150,13 @@ def main():
     recursive_copy_to(source,destination) # copy the contents of the static dir to the public dir
 
 
-    md = open("/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/content/index.md").read()
-    #print(extract_title(md))
-    generate_page("/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/content/index.md","/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/template.html","/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/public/index.html")
+    
+    
+    #generate_page("/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/content/index.md","/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/template.html","/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/public/index.html")
+    content_path = "content"
+    template_path = "template.html"
+    public_path = "public"
+    generate_pages_recursive(content_path,template_path,public_path)
     
     
 
