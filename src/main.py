@@ -4,28 +4,15 @@ from markdown_to_html import markdown_to_html
 import os
 import shutil
 from pathlib import Path
+import sys
 
-'''
-def text_node_to_html_node(text_node:TextNode):
-    if text_node.text_type not in TextType:
-        raise Exception("text_node type is not a valid type")
-    match text_node.text_type:
-        case TextType.TEXT.value:
-            return LeafNode(None,text_node.text)
-        case TextType.BOLD.value:
-            return LeafNode("b",text_node.text)
-        case TextType.ITALIC.value:
-            return LeafNode("i",text_node.text)
-        case TextType.CODE.value:
-            return LeafNode("code",text_node.text,{"href":text_node.url})
-        case TextType.LINK.value:
-            return LeafNode("a",text_node.text)
-        case TextType.IMAGE.value:
-            return LeafNode("img","",{"src":text_node.url, "alt":text_node.text})
-        
-    '''
+basepath = "/"
 
+if len(sys.argv) > 1:
+    basepath = sys.argv[1]
+    print("sys.argv:",sys.argv)
 
+print("basepath:",basepath)
 
 def recursive_copy_to(source:str, destination:str):
 
@@ -63,7 +50,7 @@ def extract_title(markdown:str):
 
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     #print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     md = open(from_path).read()
@@ -72,6 +59,7 @@ def generate_page(from_path, template_path, dest_path):
     #print("_______",html,"____")
     template = open(template_path).read()
     mod_template= template.replace("{{ Title }}",title).replace("{{ Content }}", html)
+    mod_template = mod_template.replace('href="/',f'href="{basepath}').replace('src="/',f'src="{basepath}')
 
     dest_file = open(dest_path,"w")
     dest_file.write(mod_template)
@@ -80,7 +68,7 @@ def generate_page(from_path, template_path, dest_path):
 
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     dir_path_content = os.path.join(".",dir_path_content)
     template_path = os.path.join(".",template_path)
     dest_dir_path = os.path.join(".",dest_dir_path)
@@ -118,23 +106,14 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
     html_paths:list[str] = list(map(content_to_html_path,md_paths))
 
     path_list = list(zip(md_paths,html_paths))
-    print("path_lists:",path_list)
 
     for path_tuple in path_list:
         dest_path = Path(path_tuple[1])
         if not dest_path.parent.exists():
             dest_path.parent.mkdir(parents=True)
-        print(path_tuple[0],template_path,path_tuple[1])
-        generate_page(path_tuple[0],template_path,path_tuple[1])
+        #print(path_tuple[0],template_path,path_tuple[1])
+        generate_page(path_tuple[0],template_path,path_tuple[1],basepath)
 
-    print(dest_path)
-
-            
-
-    
-    #print(content,template_path,destination)
-    
-    pass
 
 
 
@@ -145,9 +124,11 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
     
 
 def main():
-    source = "/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/static"
-    destination = "/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/public"
-    recursive_copy_to(source,destination) # copy the contents of the static dir to the public dir
+
+    #copy from static folder to destination
+    static_path = "/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/static"
+    destination = "/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/docs"
+    recursive_copy_to(static_path,destination) # copy the contents of the static dir to the public dir
 
 
     
@@ -155,8 +136,8 @@ def main():
     #generate_page("/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/content/index.md","/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/template.html","/home/dustin/workspace/github.com/bootdotdev/curriculum/sitegenerator/public/index.html")
     content_path = "content"
     template_path = "template.html"
-    public_path = "public"
-    generate_pages_recursive(content_path,template_path,public_path)
+    dest_path = "docs"
+    generate_pages_recursive(content_path,template_path,dest_path,basepath)
     
     
 
